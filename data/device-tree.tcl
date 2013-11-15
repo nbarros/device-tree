@@ -1600,7 +1600,6 @@ proc gener_slave {node slave_ip intc {force_type ""} {busif_handle ""}} {
 			set ip_tree [tree_append $ip_tree [list "#dma-cells" int "1"]]
 			set ip_tree [tree_append $ip_tree [list "#dma-channels" int "8"]]
 			set ip_tree [tree_append $ip_tree [list "#dma-requests" int "4"]]
-           	set ip_tree [tree_append $ip_tree [list "arm,primecell-periphid" hexint "0x00041330"]];
 
 			lappend node $ip_tree
 		}
