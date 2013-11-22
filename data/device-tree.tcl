@@ -2781,52 +2781,52 @@ proc axipcie_ranges {ip_handle num_ranges_name axi_base_name_template pcie_base_
 # should be reported in the device tree for generic IP. This list
 # includes all the parameter names, except those that are handled
 # specially, such as the instance name, baseaddr, etc.
-proc default_parameters {ip_handle} {
+proc default_parameters {ip_handle {dont_generate ""}} {
 	set par_handles [list_property $ip_handle]
 	set params {}
 	foreach par $par_handles {
         set par_name [string map -nocase {CONFIG. "" } $par]
 		# Ignore some parameters that are always handled specially
-		switch -glob $par_name {
-			"INSTANCE" -
-			"*BASEADDR" -
-			"*HIGHADDR" -
-			"C_SPLB*" -
-			"C_DPLB*" -
-			"C_IPLB*" -
-			"C_PLB*" -
-			"M_AXI*" -
-			"C_M_AXI*" -
-			"S_AXI_ADDR_WIDTH" -
-			"C_S_AXI_ADDR_WIDTH" -
-			"S_AXI_DATA_WIDTH" -
-			"C_S_AXI_DATA_WIDTH" -
-			"S_AXI_ACLK_FREQ_HZ" -
-			"C_S_AXI_ACLK_FREQ_HZ" -
-			"S_AXI_LITE*" -
-			"C_S_AXI_LITE*" -
-			"S_AXI_PROTOCOL" -
-			"C_S_AXI_PROTOCOL" -
-			"*INTERCONNECT_?_AXI*" -
-			"*S_AXI_ACLK_PERIOD_PS" -
-			"M*_AXIS*" -
-			"C_M*_AXIS*" -
-			"S*_AXIS*" -
-			"C_S*_AXIS*" -
-			"PRH*" -
-			"C_FAMILY" -
-			"FAMILY" -
-			"*CLK_FREQ_HZ" -
-			"*ENET_SLCR_*Mbps_DIV?" -
-			"HW_VER" {}
+		switch -glob $par_name \
+			$dont_generate - \
+			"INSTANCE" - \
+			"*BASEADDR" - \
+			"*HIGHADDR" - \
+			"C_SPLB*" - \
+			"C_DPLB*" - \
+			"C_IPLB*" - \
+			"C_PLB*" - \
+			"M_AXI*" - \
+			"C_M_AXI*" - \
+			"S_AXI_ADDR_WIDTH" - \
+			"C_S_AXI_ADDR_WIDTH" - \
+			"S_AXI_DATA_WIDTH" - \
+			"C_S_AXI_DATA_WIDTH" - \
+			"S_AXI_ACLK_FREQ_HZ" - \
+			"C_S_AXI_ACLK_FREQ_HZ" - \
+			"S_AXI_LITE*" - \
+			"C_S_AXI_LITE*" - \
+			"S_AXI_PROTOCOL" - \
+			"C_S_AXI_PROTOCOL" - \
+			"*INTERCONNECT_?_AXI*" - \
+			"*S_AXI_ACLK_PERIOD_PS" - \
+			"M*_AXIS*" - \
+			"C_M*_AXIS*" - \
+			"S*_AXIS*" - \
+			"C_S*_AXIS*" - \
+			"PRH*" - \
+			"C_FAMILY" - \
+			"FAMILY" - \
+			"*CLK_FREQ_HZ" - \
+			"*ENET_SLCR_*Mbps_DIV?" - \
+			"HW_VER" { } \
 			default {
 				if { [ regexp {^C_.+} $par_name ] } {
 					lappend params $par_name
 				}
 			}
-		}
 	}
-    debug ip "slave=$ip_handle default_param=$params"
+
 	return $params
 }
 
