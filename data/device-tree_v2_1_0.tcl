@@ -2038,20 +2038,22 @@ proc gener_slave {node slave intc {force_type ""} {busif_handle ""}} {
 			lappend node $ip_tree
 		}
 		"ps7_slcr" {
-			set ip_tree [slaveip $slave $intc "" [default_parameters $slave] "S_AXI_" "xlnx,zynq-slcr"]
+			set ip_tree [slaveip $slave $intc "" [default_parameters $slave] "S_AXI_"]
+			set ip_tree [tree_node_update $ip_tree "compatible" [list "compatible" stringtuple "xlnx,zynq-slcr syscon"]]
 			# use TCL table
 			set ip_tree [zynq_irq $ip_tree $intc $name]
 
-			set clock_tree [list "clocks" tree {}]
-			set clock_tree [tree_append $clock_tree [list "#address-cells" int "1"]]
-			set clock_tree [tree_append $clock_tree [list "#size-cells" int "0"]]
+			set ip_tree [tree_append $ip_tree [list "#address-cells" int "1"]]
+			set ip_tree [tree_append $ip_tree [list "#size-cells" int "1"]]
+			set ip_tree [tree_append $ip_tree [list ranges empty empty]]
 
 			# PS_CLK node creation
-			set subclk_tree [list "clkc: clkc" tree {}]
+			set subclk_tree [list "clkc: clkc@100" tree {}]
 			set subclk_tree [tree_append $subclk_tree [list "#clock-cells" int "1"]]
 			set subclk_tree [tree_append $subclk_tree [list "compatible" stringtuple "xlnx,ps7-clkc"]]
 			set subclk_tree [tree_append $subclk_tree [list "ps-clk-frequency" int "33333333"]]
 			set subclk_tree [tree_append $subclk_tree [list "fclk-enable" hexint "0xF"]]
+			set subclk_tree [tree_append $subclk_tree [list "reg" hexinttuple "0x100 0x100"]]
 
 			set subclk_tree [tree_append $subclk_tree [list "clock-output-names" stringtuple \
 									[ list "armpll" "ddrpll" "iopll" "cpu_6or4x" \
@@ -2067,9 +2069,7 @@ proc gener_slave {node slave intc {force_type ""} {busif_handle ""}} {
 									"dbg_trc" "dbg_apb" \
 									]]]
 
-			set clock_tree [tree_append $clock_tree $subclk_tree]
-
-			set ip_tree [tree_append $ip_tree $clock_tree]
+			set ip_tree [tree_append $ip_tree $subclk_tree]
 
 			lappend node $ip_tree
 		}
