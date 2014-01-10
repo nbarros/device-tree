@@ -204,6 +204,31 @@ proc generate_device_tree {filepath bootargs {consoleip ""}} {
 					lappend buses $bus_name
 				}
 			}
+
+			set clk [get_clock_frequency $hwproc_handle "CLK"]
+			set subclk_tree_cpu [list "clk_cpu: cpu" tree {}]
+			set subclk_tree_cpu [tree_append $subclk_tree_cpu [list "#clock-cells" int "0"]]
+			set subclk_tree_cpu [tree_append $subclk_tree_cpu [list "reg" int "0"]]
+			set subclk_tree_cpu [tree_append $subclk_tree_cpu [list "compatible" stringtuple "fixed-clock"]]
+			set subclk_tree_cpu [tree_append $subclk_tree_cpu [list "clock-frequency" int "$clk" ]]
+			set subclk_tree_cpu [tree_append $subclk_tree_cpu [list "clock-output-names" stringtuple "cpu"]]
+
+			# FIXME Let assume IPs on bus have also the same clk as cpu which is not truth all the time
+			set subclk_tree_bus [list "clk_bus: bus" tree {}]
+			set subclk_tree_bus [tree_append $subclk_tree_bus [list "#clock-cells" int "0"]]
+			set subclk_tree_bus [tree_append $subclk_tree_bus [list "reg" int "1"]]
+			set subclk_tree_bus [tree_append $subclk_tree_bus [list "compatible" stringtuple "fixed-clock"]]
+			set subclk_tree_bus [tree_append $subclk_tree_bus [list "clock-frequency" int "$clk" ]]
+			set subclk_tree_bus [tree_append $subclk_tree_bus [list "clock-output-names" stringtuple "bus"]]
+
+			set clock_tree [list "clocks" tree {}]
+			set clock_tree [tree_append $clock_tree [list "#address-cells" int "1"]]
+			set clock_tree [tree_append $clock_tree [list "#size-cells" int "0"]]
+
+			set clock_tree [tree_append $clock_tree $subclk_tree_cpu]
+			set clock_tree [tree_append $clock_tree $subclk_tree_bus]
+			lappend ip_tree $clock_tree
+
 			set toplevel [gen_microblaze $toplevel $hwproc_handle [default_parameters $hwproc_handle] $intc $buses]
 
 			lappend toplevel [list "compatible" stringtuple [list "xlnx,microblaze"] ]
@@ -1010,6 +1035,10 @@ proc gener_slave {node slave_ip intc {force_type ""} {busif_handle ""}} {
 	variable phy_count
 	variable mac_count
 
+	set proc_handle [get_sw_processor]
+	set hwproc_handle [get_cells -filter "NAME==[get_property HW_INSTANCE $proc_handle]"]
+	set proctype [get_property IP_NAME $hwproc_handle ]
+
 	if { [llength $force_type] != 0 } {
 		set name $force_type
 		set type $force_type
@@ -1100,6 +1129,9 @@ proc gener_slave {node slave_ip intc {force_type ""} {busif_handle ""}} {
 			if { $type == "axi_uartlite" } {
 				set ip_tree [tree_append $ip_tree [list "clock-frequency" int [get_clock_frequency $slave "S_AXI_ACLK"]]]
 			}
+			if { "$proctype" == "microblaze" } {
+				set ip_tree [tree_append $ip_tree [list "clocks" labelref "clk_bus"]]
+			}
 			lappend node $ip_tree
 			#"BAUDRATE DATA_BITS CLK_FREQ ODD_PARITY USE_PARITY"]
 		}
@@ -1133,6 +1165,9 @@ proc gener_slave {node slave_ip intc {force_type ""} {busif_handle ""}} {
 				set freq [get_clock_frequency $slave "xin"]
 			}
 			set ip_tree [tree_append $ip_tree [list "clock-frequency" int $freq]]
+			if { "$proctype" == "microblaze" } {
+				set ip_tree [tree_append $ip_tree [list "clocks" labelref "clk_bus"]]
+			}
 
 			set ip_tree [tree_append $ip_tree [list "reg-shift" int "2"]]
 			if { $type == "axi_uart16550"} {
@@ -1171,6 +1206,9 @@ proc gener_slave {node slave_ip intc {force_type ""} {busif_handle ""}} {
 			if { $type == "axi_timebase_wdt" } {
 				set ip_tree [tree_append $ip_tree [list "clock-frequency" int [get_clock_frequency $slave "S_AXI_ACLK"]]]
 			}
+			if { "$proctype" == "microblaze" } {
+				set ip_tree [tree_append $ip_tree [list "clocks" labelref "clk_bus"]]
+			}
 			lappend node $ip_tree
 		}
 		"axi_traffic_gen" {
@@ -1205,6 +1243,9 @@ proc gener_slave {node slave_ip intc {force_type ""} {busif_handle ""}} {
 			if { $type == "axi_timer"} {
 				set freq [get_clock_frequency $slave "S_AXI_ACLK"]
 				set ip_tree [tree_append $ip_tree [list "clock-frequency" int $freq]]
+				if { "$proctype" == "microblaze" } {
+					set ip_tree [tree_append $ip_tree [list "clocks" labelref "clk_bus"]]
+				}
 			}
 			lappend node $ip_tree
 		}
@@ -1300,6 +1341,9 @@ proc gener_slave {node slave_ip intc {force_type ""} {busif_handle ""}} {
 			set freq [get_clock_frequency $slave "S_AXI_ACLK"]
 			set ip_tree [tree_append $ip_tree [list "clock-frequency" int $freq]]
 
+			if { "$proctype" == "microblaze" } {
+				set ip_tree [tree_append $ip_tree [list "clocks" labelref "clk_bus"]]
+			}
 			set ip_tree [tree_append $ip_tree [gen_mdiotree $slave]]
 
 			lappend node $ip_tree
@@ -2329,6 +2373,7 @@ proc gen_microblaze {tree hwproc_handle params intc {buses ""}} {
 	set clk [get_clock_frequency $hwproc_handle "CLK"]
 	debug clock "Clock Frequency: $clk"
 	lappend proc_node [list clock-frequency int $clk]
+	lappend proc_node [list "clocks" labelref "clk_cpu"]
 	lappend proc_node [list timebase-frequency int $clk]
 	lappend proc_node [list reg int 0]
 	if { [llength $icache_size] != 0 } {
