@@ -1699,9 +1699,9 @@ proc gener_slave {node slave_ip intc {force_type ""} {busif_handle ""}} {
 
 			lappend node $ip_tree
 		}
-        "ps7_can" -
+		"ps7_can" -
 		"ps7_iop_bus_config" -
-        "ps7_qspi_linear" -
+		"ps7_qspi_linear" -
 		"ps7_ddrc" {
 			set ip_tree [slaveip $slave $intc "" [default_parameters $slave] "S_AXI_" ""]
 			# use TCL table
@@ -3064,7 +3064,7 @@ proc gen_compatible_property {nodename type hw_ver {other_compatibles {}} } {
 		{axi_usb2_device} {xps_usb2_device_4.00.a} \
 		{axi_pcie} {axi_pcie_1.05.a} \
 		{ps7_ddrc} {ps7_ddrc} \
-        {ps7_can} {ps7_can} \
+		{ps7_can} {ps7_can} \
 		{axi_perf_mon} {axi_perf_monitor} \
 	]
 
