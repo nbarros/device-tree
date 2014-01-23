@@ -1360,27 +1360,30 @@ proc gener_slave {node slave_ip intc {force_type ""} {busif_handle ""}} {
 			set axiethernetfound 0
 			variable dma_device_id
 			set xdma "axi-dma"
-            set axidma_busif_handle [get_intf_pins -of_objects $slave "M_AXIS_MM2S"]
-            set axidma_name [get_intf_nets -of_objects $axidma_busif_handle]
-            set axidma_ip_handle [get_intf_pins -of_objects $axidma_name -filter "TYPE==TARGET"]
-            set axidma_ip_handle_name [get_property NAME $axidma_ip_handle]
-            set connected_ip_handle [get_cells -of_objects $axidma_ip_handle]
-            set connected_ip_name [get_property NAME $connected_ip_handle]
-            set connected_ip_type [get_property IP_NAME $connected_ip_handle]
+			set tx_chan [scan_int_parameter_value $slave "C_INCLUDE_MM2S"]
+			if {$tx_chan == 1} {
+				set axidma_busif_handle [get_intf_pins -of_objects $slave "M_AXIS_MM2S"]
+				set axidma_name [get_intf_nets -of_objects $axidma_busif_handle]
+				set axidma_ip_handle [get_intf_pins -of_objects $axidma_name -filter "TYPE==TARGET"]
+				set axidma_ip_handle_name [get_property NAME $axidma_ip_handle]
+				set connected_ip_handle [get_cells -of_objects $axidma_ip_handle]
+				set connected_ip_name [get_property NAME $connected_ip_handle]
+				set connected_ip_type [get_property IP_NAME $connected_ip_handle]
 
-            # FIXME - this need to be check because axi_ethernet contains axi dma handling in it
-            if {[string compare $connected_ip_type "axi_ethernet"] == 0} {
-                set axiethernetfound 1
-            } elseif {[string compare $connected_ip_type "axi_ethernet_buffer"] == 0} {
-                set axiethernetfound 1
-            } else {
-                # Axi loopback widget can be found just in this way because they are not connected to any bus
-                variable periphery_array
-                if {[lsearch $periphery_array $connected_ip_handle] == -1 && $connected_ip_name != $name } {
-                    set node [gener_slave $node $connected_ip_handle $intc]
-                    lappend periphery_array $connected_ip_handle
-                }
-            }
+				# FIXME - this need to be check because axi_ethernet contains axi dma handling in it
+				if {[string compare $connected_ip_type "axi_ethernet"] == 0} {
+					set axiethernetfound 1
+				} elseif {[string compare $connected_ip_type "axi_ethernet_buffer"] == 0} {
+					set axiethernetfound 1
+				} else {
+					# Axi loopback widget can be found just in this way because they are not connected to any bus
+					variable periphery_array
+					if {[lsearch $periphery_array $connected_ip_handle] == -1 && $connected_ip_name != $name } {
+						set node [gener_slave $node $connected_ip_handle $intc]
+						lappend periphery_array $connected_ip_handle
+					}
+				}
+			}
 			if {$axiethernetfound != 1} {
 				set hw_name [get_property NAME $slave]
 
