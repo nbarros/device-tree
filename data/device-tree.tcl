@@ -1704,9 +1704,16 @@ proc gener_slave {node slave_ip intc {force_type ""} {busif_handle ""}} {
 		}
 		"ps7_can" -
 		"ps7_iop_bus_config" -
-		"ps7_qspi_linear" -
-		"ps7_ddrc" {
+		"ps7_qspi_linear" {
 			set ip_tree [slaveip $slave $intc "" [default_parameters $slave] "S_AXI_" ""]
+			# use TCL table
+			set ip_tree [zynq_irq $ip_tree $intc $name]
+			set ip_tree [zynq_clk $ip_tree $name]
+
+			lappend node $ip_tree
+		}
+		"ps7_ddrc" {
+			set ip_tree [slaveip $slave $intc "" [default_parameters $slave] "S_AXI_" "xlnx,zynq-ddrc-1.00.a"]
 			# use TCL table
 			set ip_tree [zynq_irq $ip_tree $intc $name]
 			set ip_tree [zynq_clk $ip_tree $name]
