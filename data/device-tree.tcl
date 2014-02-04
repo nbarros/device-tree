@@ -1702,7 +1702,32 @@ proc gener_slave {node slave_ip intc {force_type ""} {busif_handle ""}} {
 
 			lappend node $ip_tree
 		}
-		"ps7_can" -
+		"axi_can" -
+		"can" {
+			if { "$type" == "can" } {
+				set interrupts "ip2bus_intrevent"
+			} else {
+				set interrupts [interrupt_list $slave]
+			}
+			if { "$proctype" == "microblaze" } {
+				set ip_tree [slaveip_intr $slave $intc "$interrupts" "" [default_parameters $slave] "" "" "xlnx,axi-can-1.00.a"]
+				set ip_tree [tree_append $ip_tree [list "clock-names" stringtuple "ref_clk"]]
+				set ip_tree [tree_append $ip_tree [list "clocks" labelreftuple "clk_bus"]]
+			} else {
+				set ip_tree [slaveip_intr $slave $intc "$interrupts" "" [default_parameters $slave] "" "" "xlnx,axi-can-1.00.a"]
+				set ip_tree [tree_append $ip_tree [list "clock-names" stringtuple "ref_clk"]]
+				set ip_tree [tree_append $ip_tree [list "clocks" labelreftuple {"clkc 0"}]]
+			}
+			lappend node $ip_tree
+		}
+		"ps7_can" {
+			set ip_tree [slaveip $slave $intc "" [default_parameters $slave] "S_AXI_" "xlnx,zynq-can-1.00.a"]
+			# use TCL table
+			set ip_tree [zynq_irq $ip_tree $intc $name]
+			set ip_tree [zynq_clk $ip_tree $name]
+
+			lappend node $ip_tree
+		}
 		"ps7_iop_bus_config" -
 		"ps7_qspi_linear" {
 			set ip_tree [slaveip $slave $intc "" [default_parameters $slave] "S_AXI_" ""]
