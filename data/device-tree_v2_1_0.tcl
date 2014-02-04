@@ -2089,7 +2089,14 @@ proc gener_slave {node slave intc {force_type ""} {busif_handle ""}} {
 			}
 			lappend node $ip_tree
 		}
-		"ps7_can" -
+		"ps7_can" {
+			set ip_tree [slaveip $slave $intc "" [default_parameters $slave] "S_AXI_" "xlnx,zynq-can-1.00.a"]
+			# use TCL table
+			set ip_tree [zynq_irq $ip_tree $intc $name]
+			set ip_tree [zynq_clk $ip_tree $name]
+
+			lappend node $ip_tree
+		}
 		"ps7_iop_bus_config" -
 		"ps7_qspi_linear" {
 			set ip_tree [slaveip $slave $intc "" [default_parameters $slave] "S_AXI_" ""]
