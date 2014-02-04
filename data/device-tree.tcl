@@ -1759,7 +1759,7 @@ proc gener_slave {node slave_ip intc {force_type ""} {busif_handle ""}} {
 		}
 		"ps7_gpio" {
 			set count 32
-			set ip_tree [slaveip $slave $intc "" "" "S_AXI_"]
+			set ip_tree [slaveip $slave $intc "" "" "S_AXI_" "xlnx,zynq-gpio-1.00.a"]
 			set ip_tree [tree_append $ip_tree [list "emio-gpio-width" int [get_ip_param_value $slave "C_EMIO_GPIO_WIDTH"]]]
 			set gpiomask [get_ip_param_value $slave "C_MIO_GPIO_MASK"]
 			set mask [expr {$gpiomask & 0xffffffff}]
@@ -1781,7 +1781,7 @@ proc gener_slave {node slave_ip intc {force_type ""} {busif_handle ""}} {
 			set alias_node [list i2c$i2c_count aliasref $name $i2c_count]
 			lappend alias_node_list $alias_node
 
-			set ip_tree [slaveip $slave $intc "" [default_parameters $slave "C_I2C_RESET"] "S_AXI_" ""]
+			set ip_tree [slaveip $slave $intc "" [default_parameters $slave "C_I2C_RESET"] "S_AXI_" "xlnx,zynq-i2c-1.00.a"]
 			# use TCL table
 			set ip_tree [zynq_irq $ip_tree $intc $name]
 			set ip_tree [zynq_clk $ip_tree $name]
@@ -1818,7 +1818,7 @@ proc gener_slave {node slave_ip intc {force_type ""} {busif_handle ""}} {
 			lappend alias_node_list $alias_node
 			incr spi_count
 
-			set ip_tree [slaveip $slave $intc "" [default_parameters $slave] "S_AXI_" ""]
+			set ip_tree [slaveip $slave $intc "" [default_parameters $slave] "S_AXI_" "xlnx,ps7-qspi-1.00.a"]
 			# use TCL table
 			set ip_tree [zynq_irq $ip_tree $intc $name]
 			set ip_tree [zynq_clk $ip_tree $name]
@@ -1855,7 +1855,7 @@ proc gener_slave {node slave_ip intc {force_type ""} {busif_handle ""}} {
 			lappend node $ip_tree
 		}
 		"ps7_wdt" {
-			set ip_tree [slaveip $slave $intc "" [default_parameters $slave] "S_AXI_" ""]
+			set ip_tree [slaveip $slave $intc "" [default_parameters $slave] "S_AXI_" "xlnx,zynq-wdt-1.00.a"]
 			# use TCL table
 			set ip_tree [zynq_irq $ip_tree $intc $name]
 			set ip_tree [zynq_clk $ip_tree $name]
@@ -1877,7 +1877,7 @@ proc gener_slave {node slave_ip intc {force_type ""} {busif_handle ""}} {
 			lappend node $ip_tree
 		}
 		"ps7_usb" {
-			set ip_tree [slaveip $slave $intc "" "" "S_AXI_" ""]
+			set ip_tree [slaveip $slave $intc "" "" "S_AXI_" "xlnx,zynq-usb-1.00.a"]
 			# use TCL table
 			set ip_tree [zynq_irq $ip_tree $intc $name]
 			set ip_tree [zynq_clk $ip_tree $name]
@@ -1896,7 +1896,7 @@ proc gener_slave {node slave_ip intc {force_type ""} {busif_handle ""}} {
 			lappend alias_node_list $alias_node
 			incr spi_count
 
-			set ip_tree [slaveip $slave $intc "" "" "S_AXI_" ""]
+			set ip_tree [slaveip $slave $intc "" "" "S_AXI_" "xlnx,zynq-spi-1.00.a"]
 			# use TCL table
 			set ip_tree [zynq_irq $ip_tree $intc $name]
 			set ip_tree [zynq_clk $ip_tree $name]
