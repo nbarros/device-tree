@@ -2375,6 +2375,11 @@ proc gen_cortexa9 {tree hwproc_handle intc params buses} {
 		lappend proc_node [list "d-cache-line-size" hexint 32]
 		lappend proc_node [list "bus-handle" labelreftuple $buses]
 		lappend proc_node [list "interrupt-handle" labelref [get_property NAME $intc]]
+
+		lappend proc_node [list "clocks" labelref "clkc 3"]
+		if { "$cpunumber" == "0" } {
+			lappend proc_node [list "operating-points" inttuple "666667 1000000 333334 1000000 222223 1000000"]
+		}
 		set proc_node [gen_params $proc_node $hw_proc $params]
 		lappend cpus_node [list [format_ip_name "cpu" $cpunumber $cpu_name] "tree" "$proc_node"]
 
