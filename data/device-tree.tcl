@@ -269,7 +269,7 @@ proc generate_device_tree {filepath bootargs {consoleip ""}} {
 			set bus_intf [get_intf_pins -of_objects $hwproc_handle "M_AXI_DP"]
 			set bus_name [get_intf_nets -of_objects $bus_intf]
 			if { [string compare -nocase $bus_name ""] != 0 } {
-				set tree [bus_bridge $hwproc_handle $intc 0 "M_AXI_DP" "" $ips "ps7_pl310 ps7_xadc"]
+				set tree [bus_bridge $hwproc_handle $intc 0 "M_AXI_DP" "" $ips "ps7_pl310 ps7_xadc ps7_globaltimer"]
 				set tree [tree_append $tree [list ranges empty empty]]
 				lappend ip_tree $tree
 				lappend buses $bus_name
@@ -922,6 +922,7 @@ proc check_console_irq {slave intc} {
 proc zynq_irq {ip_tree intc name } {
 	array set zynq_irq_list [ list \
 		{cpu_timerFIXME} {{1 11 1}} \
+		{ps7_globaltimer_0} {{1 11 0x301}} \
 		{nFIQFIXME} {{1 12 8}} \
 		{ps7_scutimer_0} {{1 13 0x301}} \
 		{ps7_scuwdt_0} {{1 14 0x301}} \
@@ -978,7 +979,7 @@ proc zynq_clk {ip_tree name} {
 	array set zynq_clk_list [ list \
 		{ps7_scuwdt_0} {{"clkc 4"}} \
 		{ps7_scutimer_0} {{"clkc 4"}} \
-        {ps7_globaltimer_0} {{"clkc 4"}} \
+		{ps7_globaltimer_0} {{"clkc 4"}} \
 		{ps7_ttc_0} {{"clkc 6"}} \
 		{ps7_ttc_1} {{"clkc 6"}} \
 		{ps7_qspi_0} {{"clkc 10" "clkc 43"} {"ref_clk" "aper_clk"}} \
@@ -2032,6 +2033,24 @@ proc gener_slave {node slave_ip intc {force_type ""} {busif_handle ""}} {
 			set ip_tree [zynq_clk $ip_tree $name]
 			lappend node $ip_tree
 		}
+		"ps7_globaltimer" {
+			if { [string match "$name" "$type"] } {
+				set ip_tree [list "ps7_globaltimer_0: ps7-globaltimer@f8f00200" tree \
+						[list \
+							[list "compatible" stringtuple "xlnx,ps7-globaltimer-1.00.a arm,cortex-a9-global-timer" ] \
+							[list "reg" hexinttuple2 [list "0xf8f00200" "0x100"] ] \
+						] \
+					]
+				set name "ps7_globaltimer_0"
+			} else {
+				set ip_tree [slaveip $slave $intc "" "" "S_AXI_" "arm,cortex-a9-global-timer"]
+			}
+
+			set ip_tree [zynq_irq $ip_tree $intc $name]
+			set ip_tree [zynq_clk $ip_tree $name]
+
+			lappend node $ip_tree
+		}
 		"ps7_xadc" {
 			set ip_tree [list "ps7_xadc: ps7-xadc@f8007100" tree \
 					[list \
@@ -2046,7 +2065,6 @@ proc gener_slave {node slave_ip intc {force_type ""} {busif_handle ""}} {
 		"ps7_intc_dist" -
 		"ps7_l2cachec" -
 		"ps7_coresight_comp" -
-		"ps7_globaltimer" -
 		"ps7_gpv" -
 		"ps7_scuc" -
 		"ps7_trace" -
