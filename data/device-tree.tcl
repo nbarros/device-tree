@@ -2369,10 +2369,6 @@ proc gen_cortexa9 {tree hwproc_handle intc params buses} {
 		lappend proc_node [list "compatible" string "arm,cortex-a9"]
 
 		lappend proc_node [list "reg" hexint $cpunumber]
-		lappend proc_node [list "i-cache-size" hexint [expr 0x8000]]
-		lappend proc_node [list "i-cache-line-size" hexint 32]
-		lappend proc_node [list "d-cache-size" hexint [expr 0x8000]]
-		lappend proc_node [list "d-cache-line-size" hexint 32]
 		lappend proc_node [list "bus-handle" labelreftuple $buses]
 		lappend proc_node [list "interrupt-handle" labelref [get_property NAME $intc]]
 
