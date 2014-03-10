@@ -2157,7 +2157,7 @@ proc gener_slave {node slave intc {force_type ""} {busif_handle ""}} {
 			set ip_tree [zynq_irq $ip_tree $intc $name]
 			set ip_tree [zynq_clk $ip_tree $name]
 
-			set ip_tree [tree_append $ip_tree [list "i2c-clk" int 400000]]
+			#set ip_tree [tree_append $ip_tree [list "i2c-clk" int 400000]]
 			set ip_tree [tree_append $ip_tree [list "clock-frequency" int 400000]]
 			#set ip_tree [tree_append $ip_tree [list "bus-id" int $i2c_count]]
 			set ip_tree [ps7_reset_handle $ip_tree $slave "C_I2C_RESET" "i2c-reset"]
