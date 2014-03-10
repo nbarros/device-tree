@@ -995,8 +995,8 @@ proc zynq_clk {ip_tree name} {
 		{ps7_sd_1} {{"clkc 22" "clkc 33"} {"clk_xin" "clk_ahb"}} \
 		{ps7_uart_0} {{"clkc 23" "clkc 40"} {"ref_clk" "aper_clk"}} \
 		{ps7_uart_1} {{"clkc 24" "clkc 41"} {"ref_clk" "aper_clk"}} \
-		{ps7_spi_0} {{"clkc 25" "clkc 34"} {"ref_clk" "aper_clk"}} \
-		{ps7_spi_1} {{"clkc 26" "clkc 35"} {"ref_clk" "aper_clk"}} \
+		{ps7_spi_0} {{"clkc 25" "clkc 34"} {"ref_clk" "pclk"}} \
+		{ps7_spi_1} {{"clkc 26" "clkc 35"} {"ref_clk" "pclk"}} \
 		{ps7_dma_s} {{"clkc 27"} {"apb_pclk"}} \
 		{ps7_usb_0} {{"clkc 28"}} \
 		{ps7_usb_1} {{"clkc 29"}} \
@@ -1897,7 +1897,7 @@ proc gener_slave {node slave_ip intc {force_type ""} {busif_handle ""}} {
 			lappend alias_node_list $alias_node
 			incr spi_count
 
-			set ip_tree [slaveip $slave $intc "" "" "S_AXI_" "xlnx,zynq-spi-1.00.a"]
+			set ip_tree [slaveip $slave $intc "" "" "S_AXI_" "cdns,spi-r1p6"]
 			# use TCL table
 			set ip_tree [zynq_irq $ip_tree $intc $name]
 			set ip_tree [zynq_clk $ip_tree $name]
