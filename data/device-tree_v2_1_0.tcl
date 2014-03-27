@@ -2132,7 +2132,8 @@ proc gener_slave {node slave intc {force_type ""} {busif_handle ""}} {
 		}
 		"ps7_gpio" {
 			set count 32
-			set ip_tree [slaveip $slave $intc "" "" "S_AXI_" "xlnx,zynq-gpio-1.00.a"]
+			set ip_tree [slaveip $slave $intc "" "" "S_AXI_"]
+			set ip_tree [tree_node_update $ip_tree "compatible" [list "compatible" stringtuple "xlnx,zynq-gpio-1.0"]]
 			set ip_tree [tree_append $ip_tree [list "emio-gpio-width" int [xget_sw_parameter_value $slave "C_EMIO_GPIO_WIDTH"]]]
 			set gpiomask [xget_sw_parameter_value $slave "C_MIO_GPIO_MASK"]
 			set mask [expr {$gpiomask & 0xffffffff}]
