@@ -1180,7 +1180,8 @@ proc gener_slave {node slave_ip intc {force_type ""} {busif_handle ""}} {
 			#"BAUDRATE DATA_BITS CLK_FREQ ODD_PARITY USE_PARITY"]
 		}
 		"ps7_uart" {
-			set ip_tree [slaveip $slave $intc "serial" [default_parameters $slave] "S_AXI_" "xlnx,xuartps"]
+			set ip_tree [slaveip $slave $intc "serial" [default_parameters $slave] "S_AXI_"]
+			set ip_tree [tree_node_update $ip_tree "compatible" [list "compatible" stringtuple "xlnx,xuartps"]]
 
 			variable alias_node_list
 			global consoleip
