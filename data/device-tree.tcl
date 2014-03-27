@@ -2036,7 +2036,7 @@ proc gener_slave {node slave_ip intc {force_type ""} {busif_handle ""}} {
 		"ps7_pl310" {
 			set ip_tree [list "ps7_pl310_0: ps7-pl310@f8f02000" tree \
 					[list \
-						[gen_compatible_property "ps7_pl310" "ps7_pl310" "1.00.a" "arm,pl310-cache" ] \
+						[list "compatible" stringtuple "arm,pl310-cache" ] \
 						[list "cache-unified" empty empty ] \
 						[list "cache-level" inttuple "2" ] \
 						[list "reg" hexinttuple2 [list "0xF8F02000" "0x1000"] ] \
