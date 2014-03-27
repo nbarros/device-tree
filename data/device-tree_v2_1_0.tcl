@@ -2397,7 +2397,7 @@ proc gener_slave {node slave intc {force_type ""} {busif_handle ""}} {
 			# num_cpus, num_interrupts are here just for qemu purpose
 			set tree [list "$name: $type@f8f01000" tree \
 					[list \
-						[gen_compatible_property $name $type [xget_hw_parameter_value $slave "HW_VER"] "arm,cortex-a9-gic arm,gic" ] \
+						[list "compatible" stringtuple "arm,cortex-a9-gic arm,gic" ] \
 						[list "reg" hexinttuple2 [list "0xF8F01000" "0x1000" "0xF8F00100" "0x100"] ] \
 						[list "#interrupt-cells" inttuple "3" ] \
 						[list "#address-cells" inttuple "2" ] \
