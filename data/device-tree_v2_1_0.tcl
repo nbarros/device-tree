@@ -2446,7 +2446,7 @@ proc gener_slave {node slave intc {force_type ""} {busif_handle ""}} {
 		"ps7_xadc" {
 			set ip_tree [list "ps7_xadc: ps7-xadc@f8007100" tree \
 					[list \
-						[gen_compatible_property "ps7_xadc" "ps7_xadc" "1.00.a" ] \
+						[list "compatible" stringtuple "xlnx,zynq-xadc-1.00.a" ] \
 						[list "reg" hexinttuple [list "0xF8007100" "0x20"] ] \
 					] \
 				]
