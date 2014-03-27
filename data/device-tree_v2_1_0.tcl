@@ -2518,7 +2518,7 @@ proc gener_slave {node slave intc {force_type ""} {busif_handle ""}} {
 			if {"$name" == "ps7_ram_0"} {
 				set ip_tree [list "ps7_ocmc_0: ps7-ocmc@f800c000" tree \
 					[list \
-						[gen_compatible_property "ps7-ocmc" "ps7-ocmc" "1.00.a" "xlnx,zynq-ocm-1.0" ] \
+						[list "compatible" stringtuple "xlnx,zynq-ocmc-1.0" ] \
 						[list "reg" hexinttuple [list "0xf800c000" "0x1000"] ] \
 					] \
 				]
