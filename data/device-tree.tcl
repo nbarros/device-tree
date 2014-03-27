@@ -984,7 +984,7 @@ proc zynq_clk {ip_tree name} {
 		{ps7_ttc_1} {{"clkc 6"}} \
 		{ps7_qspi_0} {{"clkc 10" "clkc 43"} {"ref_clk" "aper_clk"}} \
 		{ps7_qspi_linear_0} {{"clkc 10" "clkc 43"} { "ref_clk" "aper_clk" }} \
-		{ps7_smcc_0} {{"clkc 11" "clkc 44"} {"ref_clk" "aper_clk"}} \
+		{ps7_smcc_0} {{"clkc 11" "clkc 44"} {"memclk" "aclk"}} \
 		{ps7_xadc} {{"clkc 12"}} \
 		{ps7_dev_cfg_0} {{"clkc 12" "clkc 15" "clkc 16" "clkc 17" "clkc 18"} {"ref_clk" "fclk0" "fclk1" "fclk2" "fclk3"}} \
 		{ps7_ethernet_0} {{"clkc 13" "clkc 30"} {"ref_clk" "aper_clk"}} \
@@ -1939,7 +1939,10 @@ proc gener_slave {node slave_ip intc {force_type ""} {busif_handle ""}} {
 			lappend node $ip_tree
 		}
 		"ps7_smcc" {
-			set ip_tree [slaveip $slave $intc "" [default_parameters $slave] "S_AXI_" "xlnx,ps7-smc xlnx,zynq-smc-1.00.a"]
+			set ip_tree [slaveip $slave $intc "" [default_parameters $slave] "S_AXI_"]
+			set ip_tree [tree_node_update $ip_tree "compatible" [list "compatible" stringtuple "arm,pl353-smc-r2p1"]]
+			# Replace xlnx prefix by arm prefix
+			regsub -all "xlnx" $ip_tree "arm" ip_tree
 
 			# use TCL table
 			set ip_tree [zynq_irq $ip_tree $intc $type]
@@ -1958,14 +1961,15 @@ proc gener_slave {node slave_ip intc {force_type ""} {busif_handle ""}} {
 		}
 		"ps7_nand" {
 			# just C_S_AXI_BASEADDR  C_S_AXI_HIGHADDR C_NAND_CLK_FREQ_HZ C_NAND_MODE C_INTERCONNECT_S_AXI_MASTERS HW_VER INSTANCE
-			set ip_tree [slaveip $slave $intc "" [default_parameters $slave] "S_AXI_" "xlnx,zynq-nand-1.00.a"]
+			set ip_tree [slaveip $slave $intc "" [default_parameters $slave] "S_AXI_"]
+			set ip_tree [tree_node_update $ip_tree "compatible" [list "compatible" stringtuple "arm,pl353-nand-r2p1"]]
+			# Replace xlnx prefix by arm prefix
+			regsub -all "xlnx" $ip_tree "arm" ip_tree
 
 			# FIXME: set reg size to 16MB. This is a workaround for 14.4
 			# tools provides the wrong high address of NAND
 			set baseaddr [scan_int_parameter_value $slave "C_S_AXI_BASEADDR"]
 			set ip_tree [tree_node_update $ip_tree "reg" [list "reg" hexinttuple [list $baseaddr "16777216" ]]]
-			set width [xget_sw_parameter_value $slave "C_NAND_WIDTH"]
-			set ip_tree [tree_append $ip_tree [list "nand-bus-width" int $width]]
 
 			global flash_memory
 			if {[ string match -nocase $name $flash_memory ]} {
