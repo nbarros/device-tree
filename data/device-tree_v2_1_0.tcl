@@ -2430,13 +2430,14 @@ proc gener_slave {node slave intc {force_type ""} {busif_handle ""}} {
 			if { [string match "$name" "$type"] } {
 				set ip_tree [list "ps7_globaltimer_0: ps7-globaltimer@f8f00200" tree \
 						[list \
-							[list "compatible" stringtuple "xlnx,ps7-globaltimer-1.00.a arm,cortex-a9-global-timer" ] \
+							[list "compatible" stringtuple "arm,cortex-a9-global-timer" ] \
 							[list "reg" hexinttuple2 [list "0xf8f00200" "0x100"] ] \
 						] \
 					]
 				set name "ps7_globaltimer_0"
 			} else {
-				set ip_tree [slaveip $slave $intc "" "" "S_AXI_" "arm,cortex-a9-global-timer"]
+				set ip_tree [slaveip $slave $intc "" "" "S_AXI_"]
+				set ip_tree [tree_node_update $ip_tree "compatible" [list "compatible" stringtuple "arm,cortex-a9-global-timer"]]
 			}
 
 			set ip_tree [zynq_irq $ip_tree $intc $name]
