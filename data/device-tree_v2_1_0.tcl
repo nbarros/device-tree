@@ -2161,7 +2161,8 @@ proc gener_slave {node slave intc {force_type ""} {busif_handle ""}} {
 			set alias_node [list i2c$i2c_count aliasref $name $i2c_count]
 			lappend alias_node_list $alias_node
 
-			set ip_tree [slaveip $slave $intc "" [default_parameters $slave "C_I2C_RESET"] "S_AXI_" "cdns,i2c-r1p10"]
+			set ip_tree [slaveip $slave $intc "" [default_parameters $slave "C_I2C_RESET"] "S_AXI_"]
+			set ip_tree [tree_node_update $ip_tree "compatible" [list "compatible" stringtuple "cdns,i2c-r1p10"]]
 			# use TCL table
 			set ip_tree [zynq_irq $ip_tree $intc $name]
 			set ip_tree [zynq_clk $ip_tree $name]
