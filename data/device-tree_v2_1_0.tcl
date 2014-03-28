@@ -2226,14 +2226,16 @@ proc gener_slave {node slave intc {force_type ""} {busif_handle ""}} {
 			lappend node $ip_tree
 		}
 		"ps7_wdt" {
-			set ip_tree [slaveip $slave $intc "" [default_parameters $slave] "S_AXI_" "xlnx,zynq-wdt-1.00.a"]
+			set ip_tree [slaveip $slave $intc "" [default_parameters $slave] "S_AXI_"]
+			set ip_tree [tree_node_update $ip_tree "compatible" [list "compatible" stringtuple "xlnx,zynq-wdt-r1p2"]]
+
 			# use TCL table
 			set ip_tree [zynq_irq $ip_tree $intc $name]
 			set ip_tree [zynq_clk $ip_tree $name]
 
 			set ip_tree [tree_append $ip_tree [list "device_type" string "watchdog"]]
 			set ip_tree [tree_append $ip_tree [list "reset" int 0]]
-			set ip_tree [tree_append $ip_tree [list "timeout" int 10]]
+			set ip_tree [tree_append $ip_tree [list "timeout-sec" int 10]]
 
 			lappend node $ip_tree
 		}
