@@ -2003,11 +2003,13 @@ proc gener_slave {node slave_ip intc {force_type ""} {busif_handle ""}} {
 			# NOTE: For 14.4, the ps7_sram_* is refer to NOR flash not SRAM
 			global flash_memory
 			if {[ string match -nocase $name $flash_memory ]} {
-				set ip_tree [slaveip $slave $intc "flash" [default_parameters $slave] "S_AXI_" "cfi-flash"]
+				set ip_tree [slaveip $slave $intc "flash" [default_parameters $slave] "S_AXI_"]
 				set ip_tree [change_nodename $ip_tree $name "primary_flash"]
 			} else {
-				set ip_tree [slaveip $slave $intc "" [default_parameters $slave] "S_AXI_" "cfi-flash"]
+				set ip_tree [slaveip $slave $intc "" [default_parameters $slave] "S_AXI_"]
 			}
+			set ip_tree [tree_node_update $ip_tree "compatible" [list "compatible" stringtuple "cfi-flash"]]
+
 
 			set ip_tree [tree_append $ip_tree [list "bank-width" int 1]]
 
