@@ -2177,7 +2177,9 @@ proc gener_slave {node slave intc {force_type ""} {busif_handle ""}} {
 			lappend node $ip_tree
 		}
 		"ps7_ttc" {
-			set ip_tree [slaveip $slave $intc "" "" "S_AXI_" "cdns,ttc"]
+			set ip_tree [slaveip $slave $intc "" "" "S_AXI_"]
+			set ip_tree [tree_node_update $ip_tree "compatible" [list "compatible" stringtuple "cdns,ttc"]]
+
 			# use TCL table
 			set ip_tree [zynq_irq $ip_tree $intc $name]
 			set ip_tree [zynq_clk $ip_tree $name]
