@@ -2208,7 +2208,7 @@ proc gener_slave {node slave intc {force_type ""} {busif_handle ""}} {
 			set ip_tree [zynq_irq $ip_tree $intc $name]
 			set ip_tree [zynq_clk $ip_tree $name]
 
-			set ip_tree [tree_append $ip_tree [list "num-chip-select" int 1]]
+			set ip_tree [tree_append $ip_tree [list "num-cs" int 1]]
 			set qspi_mode [xget_sw_parameter_value $slave "C_QSPI_MODE"]
 			if { $qspi_mode == 2} {
 				set is_dual 1
