@@ -1252,7 +1252,7 @@ proc zynq_clk {ip_tree name} {
 		{ps7_globaltimer_0} {{"clkc 4"}} \
 		{ps7_ttc_0} {{"clkc 6"}} \
 		{ps7_ttc_1} {{"clkc 6"}} \
-		{ps7_qspi_0} {{"clkc 10" "clkc 43"} {"ref_clk" "aper_clk"}} \
+		{ps7_qspi_0} {{"clkc 10" "clkc 43"} {"ref_clk" "pclk"}} \
 		{ps7_qspi_linear_0} {{"clkc 10" "clkc 43"} { "ref_clk" "aper_clk" }} \
 		{ps7_smcc_0} {{"clkc 11" "clkc 44"} {"memclk" "aclk"}} \
 		{ps7_xadc} {{"clkc 12"}} \
