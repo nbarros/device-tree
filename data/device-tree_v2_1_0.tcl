@@ -2410,8 +2410,6 @@ proc gener_slave {node slave intc {force_type ""} {busif_handle ""}} {
 						[list "compatible" stringtuple "arm,cortex-a9-gic arm,gic" ] \
 						[list "reg" hexinttuple2 [list "0xF8F01000" "0x1000" "0xF8F00100" "0x100"] ] \
 						[list "#interrupt-cells" inttuple "3" ] \
-						[list "#address-cells" inttuple "2" ] \
-						[list "#size-cells" inttuple "1" ] \
 						[list "interrupt-controller" empty empty ] \
 						[list "num_cpus" inttuple "2"] \
 						[list "num_interrupts" inttuple "96" ] \
