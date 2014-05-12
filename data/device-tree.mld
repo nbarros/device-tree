@@ -1,8 +1,8 @@
-# EDK BSP board generation for device trees supporting Microblaze and PPC
+# EDK BSP board generation for device trees supporting Microblaze and Zynq
 #
-# (C) Copyright 2007-2008 Xilinx, Inc.
+# (C) Copyright 2007-2014 Xilinx, Inc.
 # Based on original code:
-# (C) Copyright 2007-2008 Michal Simek
+# (C) Copyright 2007-2014 Michal Simek
 #
 # Michal SIMEK <monstr@monstr.eu>
 #
@@ -24,15 +24,17 @@
 OPTION psf_version = 2.1;
 
 BEGIN OS device-tree
-
+OPTION NAME = device-tree;
 OPTION DRC = device_tree_drc;
-OPTION SUPPORTED_PERIPHERALS = (microblaze ppc405 ppc405_virtex4 ppc440_virtex5 ps7_cortexa9);
+OPTION VERSION = 1.01.b;
+
+OPTION SUPPORTED_PERIPHERALS = (microblaze ps7_cortexa9);
 OPTION DESC = "Generate flat device tree";
 OPTION COMPILE_BSP = FALSE;
 
 PARAMETER name = bootargs, desc = "Booting arguments", type = string, default = "";
 
-PARAMETER name = console device, desc = "Instance name of IP core for boot console (e.g. RS232_Uart_1, not xps_uart16550)", type = peripheral_instance, range=(opb_uartlite, xps_uartlite, xps_uart16550, opb_uart16550, opb_mdm, plb_uart16550, axi_uart16550, axi_uartlite, ps7_uart), default = "";
+PARAMETER name = console device, desc = "Instance name of IP core for boot console (e.g. RS232_Uart_1, not xps_uart16550)", type = peripheral_instance, range=(axi_uart16550, axi_uartlite, ps7_uart), default = "";
 
 PARAMETER name = periph_type_overrides, desc = "List of peripheral type overrides", type = string, default = "";
 END OS
