@@ -1707,20 +1707,41 @@ proc gener_slave {node slave_ip intc {force_type ""} {busif_handle ""}} {
 		}
 		"axi_can" -
 		"can" {
-			if { "$type" == "can" } {
-				set interrupts "ip2bus_intrevent"
-			} else {
-				set interrupts [interrupt_list $slave]
-			}
+			set ip_tree [slaveip_intr $slave $intc "" "" [default_parameters $slave] "" "" "xlnx,axi-can-1.00.a"]
+			set ip_tree [tree_append $ip_tree [list "clock-names" stringtuple "ref_clk"]]
+
 			if { "$proctype" == "microblaze" } {
-				set ip_tree [slaveip_intr $slave $intc "$interrupts" "" [default_parameters $slave] "" "" "xlnx,axi-can-1.00.a"]
-				set ip_tree [tree_append $ip_tree [list "clock-names" stringtuple "ref_clk"]]
 				set ip_tree [tree_append $ip_tree [list "clocks" labelreftuple "clk_bus"]]
 			} else {
-				set ip_tree [slaveip_intr $slave $intc "$interrupts" "" [default_parameters $slave] "" "" "xlnx,axi-can-1.00.a"]
-				set ip_tree [tree_append $ip_tree [list "clock-names" stringtuple "ref_clk"]]
 				set ip_tree [tree_append $ip_tree [list "clocks" labelreftuple {"clkc 0"}]]
 			}
+
+			set irq "-1"
+			if {![string match "" $intc] && ![string match -nocase "none" $intc]} {
+				set intc_signals [get_intc_signals $intc]
+				set index [lsearch $intc_signals "$name\_ip2bus_intrevent"]
+				if {$index != -1} {
+					set interrupt_list {}
+					# interrupt 0 is last in list.
+					set irq [expr [llength $intc_signals] - $index - 1]
+					if { "[get_property IP_NAME $intc]" == "ps7_scugic" } {
+						set irq_type "1"
+						lappend interrupt_list 0 $irq $irq_type
+					} else {
+						set irq_type "0"
+						lappend interrupt_list $irq $irq_type
+					}
+
+					if { "[get_property IP_NAME $intc]" == "ps7_scugic" } {
+						set ip_tree [tree_append $ip_tree [list "interrupts" irqtuple3 $interrupt_list]]
+					} else {
+						set ip_tree [tree_append $ip_tree [list "interrupts" inttuple2 $interrupt_list]]
+					}
+					set intc_name [get_property NAME $intc]
+					set ip_tree [tree_append $ip_tree [list "interrupt-parent" labelref $intc_name]]
+				}
+			}
+
 			lappend node $ip_tree
 		}
 		"ps7_can" {
