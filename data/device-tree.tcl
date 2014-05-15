@@ -2113,6 +2113,7 @@ proc gener_slave {node slave_ip intc {force_type ""} {busif_handle ""}} {
 		"ps7_l2cachec" -
 		"ps7_coresight_comp" -
 		"ps7_gpv" -
+		"ps7_m_axi_gp" -
 		"ps7_scuc" -
 		"ps7_trace" -
 		"ps7_ddr" {
