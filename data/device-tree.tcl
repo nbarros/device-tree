@@ -2394,10 +2394,10 @@ proc gener_slave {node slave_ip intc {force_type ""} {busif_handle ""}} {
 				}
 				default {
 					# Use the first BASEADDR parameter to be in node name - order is directed by mpd
-					set tree [slaveip_basic $slave $intc [default_parameters $slave] [format_ip_name $type [lindex $ranges_list 0 0] $name] ""]
+					set tree [slaveip_basic $slave $intc [default_parameters $slave] [format_ip_name $type [lindex $range_list 0 0] $name] ""]
 					set tree [tree_append $tree [list \#size-cells int 1]]
 					set tree [tree_append $tree [list \#address-cells int 1]]
-					set tree [tree_append $tree [gen_ranges_property_list $slave $ranges_list]]
+					set tree [tree_append $tree [gen_ranges_property_list $slave $range_list]]
 					set tree [gen_interrupt_property $tree $slave $intc [interrupt_list $slave]]
 					lappend node $tree
 				}
