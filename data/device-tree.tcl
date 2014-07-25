@@ -989,8 +989,8 @@ proc zynq_clk {ip_tree name} {
 		{ps7_dev_cfg_0} {{"clkc 12" "clkc 15" "clkc 16" "clkc 17" "clkc 18"} {"ref_clk" "fclk0" "fclk1" "fclk2" "fclk3"}} \
 		{ps7_ethernet_0} {{"clkc 13" "clkc 30"} {"ref_clk" "aper_clk"}} \
 		{ps7_ethernet_1} {{"clkc 14" "clkc 31"} {"ref_clk" "aper_clk"}} \
-		{ps7_can_0} {{"clkc 19" "clkc 36"} {"ref_clk" "aper_clk"}} \
-		{ps7_can_1} {{"clkc 20" "clkc 37"} {"ref_clk" "aper_clk"}} \
+		{ps7_can_0} {{"clkc 19" "clkc 36"} {"can_clk" "pclk"}} \
+		{ps7_can_1} {{"clkc 20" "clkc 37"} {"can_clk" "pclk"}} \
 		{ps7_sd_0} {{"clkc 21" "clkc 32"} {"clk_xin" "clk_ahb"}} \
 		{ps7_sd_1} {{"clkc 22" "clkc 33"} {"clk_xin" "clk_ahb"}} \
 		{ps7_uart_0} {{"clkc 23" "clkc 40"} {"ref_clk" "aper_clk"}} \
@@ -1726,14 +1726,19 @@ proc gener_slave {node slave_ip intc {force_type ""} {busif_handle ""}} {
 		"axi_can" -
 		"can" {
 			set ip_tree [slaveip_intr $slave $intc "" "" [default_parameters $slave] "" "" "xlnx,axi-can-1.00.a"]
-			set ip_tree [tree_append $ip_tree [list "clock-names" stringtuple "ref_clk"]]
+			set ip_tree [tree_append $ip_tree [list "clock-names" stringtuple \
+								[list "can_clk" "s_axi_aclk"]]]
 
 			if { "$proctype" == "microblaze" } {
 				set ip_tree [tree_append $ip_tree [list "clocks" labelreftuple "clk_bus"]]
 			} else {
-				set ip_tree [tree_append $ip_tree [list "clocks" labelreftuple {"clkc 0"}]]
+				set ip_tree [tree_append $ip_tree [list "clocks" labelreftuple \
+								[list {clkc 0} {clkc 1}]]]
 			}
-
+			set txdepth [get_property CONFIG.c_can_tx_dpth $slave]
+			set rxdepth [get_property CONFIG.c_can_rx_dpth $slave]
+			set ip_tree [tree_append $ip_tree [list "tx-fifo-depth" hexint $txdepth]]
+			set ip_tree [tree_append $ip_tree [list "rx-fifo-depth" hexint $rxdepth]]
 			set irq "-1"
 			if {![string match "" $intc] && ![string match -nocase "none" $intc]} {
 				set intc_signals [get_intc_signals $intc]
@@ -1769,6 +1774,8 @@ proc gener_slave {node slave_ip intc {force_type ""} {busif_handle ""}} {
 			# use TCL table
 			set ip_tree [zynq_irq $ip_tree $intc $name]
 			set ip_tree [zynq_clk $ip_tree $name]
+			set ip_tree [tree_append $ip_tree [list "tx-fifo-depth" hexint 0x40]]
+			set ip_tree [tree_append $ip_tree [list "rx-fifo-depth" hexint 0x40]]
 
 			lappend node $ip_tree
 		}
