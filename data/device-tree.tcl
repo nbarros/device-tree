@@ -1333,7 +1333,6 @@ proc gener_slave {node slave_ip intc {force_type ""} {busif_handle ""}} {
 				set axiethernet_name [get_intf_nets -of_objects $axiethernet_busif_handle]
 				set axiethernet_ip_handle [get_intf_pins -of_objects $axiethernet_name -filter "TYPE==INITIATOR"]
 			}
-			set axiethernet_ip_handle_name [get_property NAME $axiethernet_ip_handle]
 			set connected_ip_handle [get_cells -of_objects $axiethernet_ip_handle]
 			set connected_ip_name [get_property NAME $connected_ip_handle]
 			set connected_ip_type [get_property IP_NAME $connected_ip_handle]
