@@ -1330,8 +1330,12 @@ proc gener_slave {node slave_ip intc {force_type ""} {busif_handle ""}} {
 			} else {
 				# Incorrect system.xml where there is no name for STR_RXD but there is name AXI_STR_TXD
 				set axiethernet_busif_handle [get_intf_pins -of_objects $slave "AXI_STR_TXD"]
-				set axiethernet_name [get_intf_nets -of_objects $axiethernet_busif_handle]
-				set axiethernet_ip_handle [get_intf_pins -of_objects $axiethernet_name -filter "TYPE==INITIATOR"]
+				if {[llength $axiethernet_busif_handle]} {
+					set axiethernet_name [get_intf_nets -of_objects $axiethernet_busif_handle]
+					if { [llength $axiethernet_name]} {
+						set axiethernet_ip_handle [get_intf_pins -of_objects $axiethernet_name -filter "TYPE==INITIATOR"]
+					}
+				}
 			}
 			set connected_ip_handle [get_cells -of_objects $axiethernet_ip_handle]
 			set connected_ip_name [get_property NAME $connected_ip_handle]
@@ -1359,29 +1363,37 @@ proc gener_slave {node slave_ip intc {force_type ""} {busif_handle ""}} {
 		}
 		"axi_dma" {
 			set axiethernetfound 0
+			set connected_ip_name ""
 			variable dma_device_id
 			set xdma "axi-dma"
 			set tx_chan [scan_int_parameter_value $slave "C_INCLUDE_MM2S"]
 			if {$tx_chan == 1} {
 				set axidma_busif_handle [get_intf_pins -of_objects $slave "M_AXIS_MM2S"]
-				set axidma_name [get_intf_nets -of_objects $axidma_busif_handle]
-				set axidma_ip_handle [get_intf_pins -of_objects $axidma_name -filter "TYPE==TARGET"]
-				set axidma_ip_handle_name [get_property NAME $axidma_ip_handle]
-				set connected_ip_handle [get_cells -of_objects $axidma_ip_handle]
-				set connected_ip_name [get_property NAME $connected_ip_handle]
-				set connected_ip_type [get_property IP_NAME $connected_ip_handle]
+				if {[llength $axidma_busif_handle] } {
+					set axidma_name [get_intf_nets -of_objects $axidma_busif_handle]
+					if { [llength $axidma_name] } {
+						set axidma_ip_handle [get_intf_pins -of_objects $axidma_name -filter "TYPE==TARGET"]
+						if {[llength $axidma_ip_handle]} {
+							set connected_ip_handle [get_cells -of_objects $axidma_ip_handle]
+							if { [llength $connected_ip_handle]} {
+								set connected_ip_name [get_property NAME $connected_ip_handle]
+								set connected_ip_type [get_property IP_NAME $connected_ip_handle]
 
-				# FIXME - this need to be check because axi_ethernet contains axi dma handling in it
-				if {[string compare $connected_ip_type "axi_ethernet"] == 0} {
-					set axiethernetfound 1
-				} elseif {[string compare $connected_ip_type "axi_ethernet_buffer"] == 0} {
-					set axiethernetfound 1
-				} else {
-					# Axi loopback widget can be found just in this way because they are not connected to any bus
-					variable periphery_array
-					if {[lsearch $periphery_array $connected_ip_handle] == -1 && $connected_ip_name != $name } {
-						set node [gener_slave $node $connected_ip_handle $intc]
-						lappend periphery_array $connected_ip_handle
+								# FIXME - this need to be check because axi_ethernet contains axi dma handling in it
+								if {[string compare $connected_ip_type "axi_ethernet"] == 0} {
+									set axiethernetfound 1
+								} elseif {[string compare $connected_ip_type "axi_ethernet_buffer"] == 0} {
+									set axiethernetfound 1
+								} else {
+									# Axi loopback widget can be found just in this way because they are not connected to any bus
+									variable periphery_array
+									if {[lsearch $periphery_array $connected_ip_handle] == -1 && $connected_ip_name != $name } {
+										set node [gener_slave $node $connected_ip_handle $intc]
+										lappend periphery_array $connected_ip_handle
+									}
+								}
+							}
+						}
 					}
 				}
 			}
@@ -1406,17 +1418,24 @@ proc gener_slave {node slave_ip intc {force_type ""} {busif_handle ""}} {
 				if {$rx_chan == 1} {
 					# Find out initiator side
 					set axidma_busif_handle [get_intf_pins -of_objects $slave "S_AXIS_S2MM"]
-					set axidma_name [get_intf_nets -of_objects $axidma_busif_handle]
-					set axidma_ip_handle [get_intf_pins -of_objects $axidma_name -filter "TYPE==INITIATOR"]
-					set axidma_ip_handle_name [get_property NAME $axidma_ip_handle]
-					set connected_ip_handle [get_cells -of_objects $axidma_ip_handle]
-					set connected_ip_name [get_property NAME $connected_ip_handle]
-					set connected_ip_type [get_property IP_NAME $connected_ip_handle]
+					if { [llength $axidma_busif_handle] } {
+						set axidma_name [get_intf_nets -of_objects $axidma_busif_handle]
+						if { [llength $axidma_name ] } {
+							set axidma_ip_handle [get_intf_pins -of_objects $axidma_name -filter "TYPE==INITIATOR"]
+							if { [llength $axidma_ip_handle] } {
+								set connected_ip_handle [get_cells -of_objects $axidma_ip_handle]
+								if { [llength $connected_ip_handle] } {
+									set connected_ip_name [get_property NAME $connected_ip_handle]
+									set connected_ip_type [get_property IP_NAME $connected_ip_handle]
 
-					set chantree [dma_channel_config $xdma [expr $baseaddr + 0x30] "S2MM" $intc $slave $dma_device_id]
-					set chantree [tree_append $chantree [list "axistream-connected-slave" labelref $connected_ip_name]]
-					set chantree [tree_append $chantree [list "axistream-control-connected-slave" labelref $connected_ip_name]]
-					set mytree [tree_append $mytree $chantree]
+									set chantree [dma_channel_config $xdma [expr $baseaddr + 0x30] "S2MM" $intc $slave $dma_device_id]
+									set chantree [tree_append $chantree [list "axistream-connected-slave" labelref $connected_ip_name]]
+									set chantree [tree_append $chantree [list "axistream-control-connected-slave" labelref $connected_ip_name]]
+									set mytree [tree_append $mytree $chantree]
+								}
+							}
+						}
+					}
 				}
 
 				set mytree [tree_append $mytree [list \#size-cells int 1]]
